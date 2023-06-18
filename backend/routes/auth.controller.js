@@ -27,10 +27,10 @@ router.post('/signup', async (req, res) => {
     const newUser = new User({ ...value, password: hashedPassword });
     await newUser.save();
 
-    res.status(201).json({ message: 'User created successfully' , status: 200});
+    return res.status(201).json({ message: 'User created successfully' , status: 200});
   } catch (error) {
     console.error('Error signing up:', error);
-    res.status(500).json({ message: 'Internal server error'});
+    return res.status(500).json({ message: 'Internal server error'});
   }
 });
 
@@ -65,21 +65,30 @@ router.post('/signin', async (req, res) => {
       return res.json({ message: 'Invalid username or password', status: 401});
     }
 
-    // Generate and sign a JWT token
-    const token = jwt.sign({ user_id: user._id, role: user.role } , process.env.JWT_SECRET_KEY, { expiresIn: '1h'});
+    let signObject = {
+      user_id: user.id,
+      role: user.role, 
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+    }
 
+    // Generate and sign a JWT token
+    const accessToken = jwt.sign(signObject , process.env.JWT_ACCESS_TOKEN_KEY , { expiresIn: '1h'});
+    const refreshToken = jwt.sign(signObject , process.env.JWT_REFRESH_TOKEN_KEY , { expiresIn: '30d'});
     let LoggedInUser = {
       email: user.email,
-      fullName: user.fullName,
-      phoneNumber: user.phoneNumber,
+      name: user.name,
+      phone: user.phone,
       role: user.role 
     }
 
-    return res.status(201).json({ token, user: LoggedInUser });
+    return res.status(201).json({ accessToken, refreshToken, user: LoggedInUser });
   } catch (error) {
     console.error('Error signing in:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 module.exports = router;

@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  phoneNumber: {
+  phone: {
     type: String,
     required: true,
   },
@@ -21,10 +21,10 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    default: "CLIENT",
-    enum: ["RESTAURANT_MANAGER", "CLIENT"]
+    default: "ADMIN",
+    enum: ["ADMIN"]
   }, 
-  token: {
+  nationalId: {
     type: String 
   }
 });
